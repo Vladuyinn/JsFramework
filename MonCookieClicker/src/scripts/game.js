@@ -1,9 +1,14 @@
 import { ClickableArea } from "./clickable-area";
-import  "../styles/game.css"
+import { Shop } from "./shop";
+import "../styles/game.css"
 
 export class Game {
   // Game Properties
   cookies = 0;
+  shop = null;
+
+  passiveGain = 0;
+  passiveInterval = null;
 
   // Game Elements
   gameElement = null;
@@ -24,31 +29,48 @@ export class Game {
       this.gameElement,
       this.onClickableAreaClick
     );
+    this.shop = new Shop(this, this.onShopPurchase);
+  }
+
+  onShopPurchase = (price, passiveGainBoost) => {
+    this.cookies -= price;
+    this.passiveGain += passiveGainBoost;
+    this.updateScore();
   }
 
   // Lance le jeu
   start() {
     this.render();
+    this.passiveInterval = setInterval(() => {
+      this.cookies += this.passiveGain;
+      this.updateScore();
+    }, 1000);
   }
 
   // Génère les éléments à afficher.
   render() {
     this.renderScore();
     this.clickableArea.render();
+    this.shop.render();
   }
 
   // Génère l'affichage du score.
   renderScore() {
     this.scoreElement = document.createElement("section");
-	this.scoreElement.id = "game-score";
+    this.scoreElement.id = "game-score";
     this.gameElement.append(this.scoreElement);
     this.updateScore();
+    this.scoreElement.innerHTML = `
+      <span>${this.cookies.toFixed(1)} cookies</span><br>
+      <span>Gain passif : ${this.passiveGain.toFixed(1)} / sec</span>
+    `;
   }
 
   // Met à jour l'affichage du score.
   updateScore() {
     this.scoreElement.innerHTML = `
-        <span>${this.cookies} cookies</span>
+      <span>${this.cookies.toFixed(1)} cookies</span><br>
+      <span>Gain passif : ${this.passiveGain.toFixed(1)} / sec</span>
     `;
   }
 
@@ -65,5 +87,5 @@ export class Game {
     });
   };
 
-  
+
 }
