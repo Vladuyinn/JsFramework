@@ -1,11 +1,13 @@
 import { ClickableArea } from "./clickable-area";
 import { Shop } from "./shop";
+import { RandomSpawner } from "./random-spawn"; 
 import "../styles/game.css"
 
 export class Game {
   // Game Properties
   cookies = 0;
   shop = null;
+  spawner = null;
 
   passiveGain = 0;
   passiveInterval = null;
@@ -18,32 +20,52 @@ export class Game {
   clickableArea = null;
 
   constructor(config) {
-    // Récupère le nombre de cookie de base via la configuration.
-    this.cookies = config.cookies;
-    // Récupère l'élément avec l'id game.
+    // Récupération de l’état sauvegardé ou de la config initiale
+    const saved = this.load();
+    this.cookies = saved?.cookies ?? config.cookies ?? 0;
+    this.passiveGain = saved?.passiveGain ?? config.passiveGain ?? 0;
+    this.cursorCount = saved?.cursorCount ?? config.cursorCount ?? 0;
+  
     this.gameElement = document.querySelector("#game");
-    // Crée le composant ClickableArea qui gère la logique de la zone cliquable.
-    // On passe en argument l'élément Game pour permettre l'ajout d'HTML à l'intérieur.
-    // Et une fonction Callback pour réagir à l'événement de clique.
     this.clickableArea = new ClickableArea(
       this.gameElement,
       this.onClickableAreaClick
     );
     this.shop = new Shop(this, this.onShopPurchase);
+    this.spawner = new RandomSpawner(this);
+  }
+
+  save() {
+    const state = {
+      cookies: this.cookies,
+      passiveGain: this.passiveGain,
+      cursorCount: this.cursorCount
+    };
+    localStorage.setItem("gameState", JSON.stringify(state));
+  }
+  
+  load() {
+    const data = localStorage.getItem("gameState");
+    if (!data) return null;
+    return JSON.parse(data);
   }
 
   onShopPurchase = (price, passiveGainBoost) => {
     this.cookies -= price;
     this.passiveGain += passiveGainBoost;
+    this.cursorCount++;
     this.updateScore();
-  }
+    this.save();
+  };
 
   // Lance le jeu
   start() {
     this.render();
+    this.spawner.start();
     this.passiveInterval = setInterval(() => {
       this.cookies += this.passiveGain;
       this.updateScore();
+      this.save();
     }, 1000);
   }
 
@@ -77,14 +99,9 @@ export class Game {
   // Ici on utilise une fonction fléchée pour avoir encore accès au this de Game.
   // Sans fonction fléchée, le this serait celui de l'élément lié au click.
   onClickableAreaClick = () => {
-    // On ajoute 1 point aux cookies pour chaque click.
     this.cookies += 1;
-    // Par soucis de performance car les changements au DOM sont très lourd,
-    // On demande à la Window d'attendre la prochaine frame d'animation
-    // pour réaliser les changements.
-    window.requestAnimationFrame(() => {
-      this.updateScore();
-    });
+    this.updateScore();
+    this.save();
   };
 
 
