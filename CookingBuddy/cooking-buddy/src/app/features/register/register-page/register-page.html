@@ -1,0 +1,148 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>Créer un compte</mat-card-title>
+      <mat-card-subtitle>Rejoignez-nous dès aujourd'hui</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form
+        [formGroup]="registerForm"
+        (ngSubmit)="onSubmit()"
+        class="register-form"
+      >
+        <!-- Nom et Prénom -->
+        <div class="name-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Prénom</mat-label>
+            <input
+              matInput
+              formControlName="firstName"
+              placeholder="Votre prénom"
+              autocomplete="given-name"
+            />
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error>{{ firstNameErrors }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Nom</mat-label>
+            <input
+              matInput
+              formControlName="lastName"
+              placeholder="Votre nom"
+              autocomplete="family-name"
+            />
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error>{{ lastNameErrors }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="votre@email.com"
+            autocomplete="email"
+          />
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error>{{ emailErrors }}</mat-error>
+        </mat-form-field>
+
+        <!-- Mot de passe -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            placeholder="Votre mot de passe"
+            autocomplete="new-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hidePassword = !hidePassword"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hidePassword"
+          >
+            <mat-icon
+              >{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon
+            >
+          </button>
+          <mat-error>{{ passwordErrors }}</mat-error>
+        </mat-form-field>
+
+        <!-- Confirmation mot de passe -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirmer le mot de passe</mat-label>
+          <input
+            matInput
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            formControlName="confirmPassword"
+            placeholder="Confirmer votre mot de passe"
+            autocomplete="new-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="hideConfirmPassword = !hideConfirmPassword"
+          >
+            <mat-icon
+              >{{ hideConfirmPassword ? 'visibility_off' : 'visibility'
+              }}</mat-icon
+            >
+          </button>
+          <mat-error>{{ confirmPasswordErrors }}</mat-error>
+        </mat-form-field>
+
+        <!-- Acceptation des conditions -->
+        <div class="checkbox-container">
+          <mat-checkbox [formControl]="acceptTerms" color="primary">
+            J'accepte les
+            <a href="/terms" target="_blank">conditions d'utilisation</a> et la
+            <a href="/privacy" target="_blank">politique de confidentialité</a>
+          </mat-checkbox>
+          <mat-error
+            *ngIf="acceptTerms.errors?.['required'] && acceptTerms.touched"
+          >
+            Vous devez accepter les conditions d'utilisation
+          </mat-error>
+        </div>
+
+        <!-- Bouton d'inscription -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="full-width submit-button"
+          [disabled]="registerForm.invalid || isLoading || acceptTerms.invalid"
+        >
+          <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+          <span *ngIf="!isLoading">S'inscrire</span>
+          <span *ngIf="isLoading">Inscription en cours...</span>
+        </button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions>
+      <div
+        style="
+          display: flex;
+          flex: 1;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <p>Déjà un compte ?</p>
+        <button mat-button color="accent" (click)="navigateToLogin()">
+          Se connecter
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>
